@@ -1,0 +1,12 @@
+sounddevice
+scipy
+openai-whisper
+torch
+torchaudio
+keyboard
+pyperclip
+pystray
+Pillow
+pywin32
+pynput
+numpy
