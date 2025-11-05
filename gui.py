@@ -1,5 +1,5 @@
 """
-GUI for WindowsWhisper using tkinter
+GUI for WinWisp using tkinter
 """
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
@@ -20,7 +20,7 @@ class WhisperGUI:
     def create_window(self):
         """Create the main GUI window"""
         self.window = tk.Tk()
-        self.window.title("WindowsWhisper")
+        self.window.title("WinWisp")
         self.window.geometry("600x500")
         
         # Prevent window from closing, minimize to tray instead
@@ -52,7 +52,7 @@ class WhisperGUI:
         # Title
         title_label = ttk.Label(
             main_frame,
-            text="WindowsWhisper",
+            text="WinWisp",
             font=("Arial", 16, "bold")
         )
         title_label.grid(row=0, column=0, pady=(0, 10))

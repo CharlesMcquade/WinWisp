@@ -55,9 +55,9 @@ class TrayIcon:
         if self.app.last_transcription:
             from text_paster import copy_to_clipboard
             copy_to_clipboard(self.app.last_transcription)
-            self.icon.notify("Transcription copied to clipboard!", "WindowsWhisper")
+            self.icon.notify("Transcription copied to clipboard!", "WinWisp")
         else:
-            self.icon.notify("No transcription available", "WindowsWhisper")
+            self.icon.notify("No transcription available", "WinWisp")
     
     def show_settings(self, icon=None, item=None):
         """Show settings dialog"""
@@ -77,9 +77,9 @@ class TrayIcon:
         
         image = self.create_icon_image()
         self.icon = pystray.Icon(
-            "WindowsWhisper",
+            "WinWisp",
             image,
-            "WindowsWhisper - Speech to Text",
+            "WinWisp - Speech to Text",
             self.menu
         )
         
@@ -94,7 +94,7 @@ class TrayIcon:
             image = self.create_icon_image(recording=recording)
             self.icon.icon = image
     
-    def notify(self, message, title="WindowsWhisper"):
+    def notify(self, message, title="WinWisp"):
         """Show a notification"""
         if self.icon:
             self.icon.notify(message, title)

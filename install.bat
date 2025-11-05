@@ -1,5 +1,5 @@
 @echo off
-echo Installing WindowsWhisper...
+echo Installing WinWisp...
 echo.
 
 REM Check if Python is installed

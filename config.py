@@ -1,11 +1,14 @@
 """
-Configuration management for WindowsWhisper
+Configuration management for WinWisp
 """
 import json
 import os
 from pathlib import Path
 
-CONFIG_FILE = "config.json"
+# Use Windows AppData directory for config
+CONFIG_DIR = Path.home() / "AppData" / "Local" / "WinWisp"
+CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+CONFIG_FILE = CONFIG_DIR / "config.json"
 
 DEFAULT_CONFIG = {
     "hotkey": "ctrl+shift+space",
@@ -13,14 +16,17 @@ DEFAULT_CONFIG = {
     "language": "en",  # Auto-detect if empty, or specify language code
     "auto_paste": True,
     "save_recordings": False,
-    "recordings_dir": "recordings"
+    "recordings_dir": str(CONFIG_DIR / "recordings")
 }
 
 
 class Config:
     def __init__(self):
-        self.config_path = Path(CONFIG_FILE)
+        self.config_path = CONFIG_FILE
         self.data = self.load()
+        # Ensure recordings directory exists
+        if self.data.get('save_recordings'):
+            Path(self.data['recordings_dir']).mkdir(parents=True, exist_ok=True)
     
     def load(self):
         """Load configuration from file or create default"""

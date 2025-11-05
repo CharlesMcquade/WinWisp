@@ -2,7 +2,7 @@
 
 ## OpenAI Whisper
 
-WindowsWhisper uses OpenAI's Whisper model for automatic speech recognition.
+WinWisp uses OpenAI's Whisper model for automatic speech recognition.
 
 - **Project**: Whisper
 - **Developer**: OpenAI
@@ -68,4 +68,4 @@ This project also uses the following open-source libraries:
 
 ## Disclaimer
 
-WindowsWhisper is a third-party application and is not affiliated with, officially maintained, authorized, or endorsed by OpenAI. All product and company names are trademarks™ or registered® trademarks of their respective holders.
+WinWisp is a third-party application and is not affiliated with, officially maintained, authorized, or endorsed by OpenAI. All product and company names are trademarks™ or registered® trademarks of their respective holders.
