@@ -17,14 +17,9 @@ A Windows application that uses OpenAI's Whisper model to convert speech to text
 
 ### For End Users (Recommended)
 
-1. **Download the installer**: `WinWisp-Setup.exe` from the [Releases](https://github.com/CharlesMcquade/WinWisp/releases) page
-2. **Run the installer** and follow the prompts
-3. **Install FFmpeg** (if not already installed):
-   - Download from: https://ffmpeg.org/download.html
-   - Add to system PATH
-4. **Launch WinWisp** from the Start Menu or desktop shortcut
+**Coming Soon**: A Windows installer will be available in the Releases section.
 
-The first run will download the Whisper model (this may take a few minutes).
+For now, follow the developer installation instructions below.
 
 ### For Developers
 
