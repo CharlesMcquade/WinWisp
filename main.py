@@ -43,6 +43,7 @@ from hotkey_manager import HotkeyManager
 from text_paster import paste_text_at_cursor, copy_to_clipboard
 from gui import WhisperGUI
 from tray_icon import TrayIcon
+from recording_indicator import RecordingIndicator, ProcessingIndicator
 
 
 class WinWispApp:
@@ -53,16 +54,37 @@ class WinWispApp:
         config_dir = Path.home() / "AppData" / "Local" / "WinWisp"
         config_dir.mkdir(parents=True, exist_ok=True)
         
+        # Create recordings directory
+        recordings_dir = config_dir / "recordings"
+        recordings_dir.mkdir(parents=True, exist_ok=True)
+        
         # Change working directory to config directory
         os.chdir(config_dir)
+        logger.info(f"Working directory: {os.getcwd()}")
         
         # Components
         self.config = config
         self.audio_recorder = AudioRecorder()
+        
+        # Initialize WhisperHandler
+        model_name = self.config.get('model', 'small')
         self.whisper_handler = WhisperHandler(
-            model_name=self.config.get('model', 'small'),
+            model_name=model_name,
             language=self.config.get('language', 'en')
         )
+        
+        # Check if this is first run (no model downloaded)
+        self.is_first_run = not self._model_exists(model_name)
+        
+        # Only load model in background if not first run
+        if not self.is_first_run:
+            logger.info("Loading Whisper model in background...")
+            model_thread = threading.Thread(target=self.whisper_handler.load_model)
+            model_thread.daemon = True
+            model_thread.start()
+        else:
+            logger.info("First run detected - model will be downloaded when user saves settings")
+        
         self.hotkey_manager = HotkeyManager()
         
         # State
@@ -74,11 +96,23 @@ class WinWispApp:
         self.gui = None
         self.tray_icon = None
         
-        # Load model in background
-        logger.info("Loading Whisper model in background...")
-        model_thread = threading.Thread(target=self.whisper_handler.load_model)
-        model_thread.daemon = True
-        model_thread.start()
+        # Recording indicator
+        self.recording_indicator = RecordingIndicator()
+        self.processing_indicator = ProcessingIndicator()
+    
+    def _model_exists(self, model_name):
+        """Check if a Whisper model has been downloaded"""
+        cache_dir = Path.home() / ".cache" / "whisper"
+        model_files = {
+            'tiny': 'tiny.pt',
+            'base': 'base.pt',
+            'small': 'small.pt',
+            'medium': 'medium.pt',
+            'large': 'large.pt'
+        }
+        model_file = model_files.get(model_name, 'small.pt')
+        model_path = cache_dir / model_file
+        return model_path.exists()
     
     def initialize(self):
         """Initialize the application"""
@@ -87,6 +121,13 @@ class WinWispApp:
             logger.info("Creating GUI...")
             self.gui = WhisperGUI(self)
             self.gui.create_window()
+            
+            # On first run, show the window so user can configure settings
+            if self.is_first_run:
+                logger.info("First run - showing settings window")
+                self.gui.show_window()
+                # Show settings dialog immediately
+                self.gui.window.after(500, self.gui.show_settings)
             
             # Create system tray icon
             logger.info("Creating system tray icon...")
@@ -103,8 +144,8 @@ class WinWispApp:
             logger.info(f"WinWisp is ready!")
             logger.info(f"Press {hotkey} to start/stop recording")
             
-            # Show notification
-            if self.tray_icon:
+            # Show notification only if not first run
+            if not self.is_first_run and self.tray_icon:
                 self.tray_icon.notify(
                     f"Press {hotkey.upper()} to start recording",
                     "WinWisp Ready"
@@ -130,6 +171,9 @@ class WinWispApp:
         logger.info("Starting recording...")
         self.is_recording = True
         
+        # Show recording indicator with audio feedback
+        self.recording_indicator.show()
+        
         # Update UI
         if self.gui:
             self.gui.update_recording_status(True)
@@ -137,12 +181,12 @@ class WinWispApp:
         
         if self.tray_icon:
             self.tray_icon.update_icon(recording=True)
-            self.tray_icon.notify("Recording started", "WinWisp")
         
         # Start recording
         if not self.audio_recorder.start_recording():
             logger.error("Failed to start recording!")
             self.is_recording = False
+            self.recording_indicator.hide()
             if self.gui:
                 self.gui.update_recording_status(False)
                 self.gui.update_status("Failed to start recording")
@@ -156,6 +200,12 @@ class WinWispApp:
         logger.info("Stopping recording...")
         self.is_recording = False
         
+        # Hide recording indicator with audio feedback
+        self.recording_indicator.hide()
+        
+        # Show processing indicator
+        self.processing_indicator.show("Processing audio...")
+        
         # Update UI
         if self.gui:
             self.gui.update_recording_status(False)
@@ -163,13 +213,13 @@ class WinWispApp:
         
         if self.tray_icon:
             self.tray_icon.update_icon(recording=False)
-            self.tray_icon.notify("Processing audio...", "WinWisp")
         
         # Stop recording and get file
         audio_file = self.audio_recorder.stop_recording()
         
         if not audio_file:
             logger.warning("No audio recorded")
+            self.processing_indicator.hide()
             if self.gui:
                 self.gui.update_status("No audio recorded")
             return
@@ -182,6 +232,9 @@ class WinWispApp:
     
     def on_transcription_complete(self, text, error):
         """Handle transcription completion"""
+        # Hide processing indicator
+        self.processing_indicator.hide()
+        
         if error:
             logger.error(f"Transcription error: {error}")
             if self.gui:

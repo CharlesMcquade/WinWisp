@@ -12,10 +12,24 @@ dist_dir = project_root / "dist"
 build_dir = project_root / "build_temp"
 
 # Clean previous builds
-if dist_dir.exists():
-    shutil.rmtree(dist_dir)
-if build_dir.exists():
-    shutil.rmtree(build_dir)
+def remove_readonly(func, path, _):
+    """Clear the readonly bit and retry"""
+    os.chmod(path, 0o777)
+    func(path)
+
+try:
+    if dist_dir.exists():
+        shutil.rmtree(dist_dir, onerror=remove_readonly)
+except Exception as e:
+    print(f"Warning: Could not remove dist directory: {e}")
+    print("Continuing anyway - PyInstaller will overwrite files...")
+
+try:
+    if build_dir.exists():
+        shutil.rmtree(build_dir, onerror=remove_readonly)
+except Exception as e:
+    print(f"Warning: Could not remove build_temp directory: {e}")
+    print("Continuing anyway...")
 
 print("Building WinWisp executable...")
 
@@ -45,6 +59,52 @@ pyinstaller_args = [
     # Don't include unnecessary files
     "--exclude-module=matplotlib",
     "--exclude-module=pandas",
+    "--exclude-module=IPython",
+    "--exclude-module=jupyter",
+    "--exclude-module=notebook",
+    "--exclude-module=pytest",
+    "--exclude-module=sphinx",
+    "--exclude-module=PIL.ImageQt",  # Qt support in PIL
+    "--exclude-module=PIL.ImageTk",  # Tk is included separately
+    
+    # Exclude unused torch modules (big savings)
+    "--exclude-module=torchvision",
+    "--exclude-module=torchaudio.datasets",
+    "--exclude-module=torchaudio.models",
+    "--exclude-module=torch.distributions",
+    "--exclude-module=torch.autograd.profiler",
+    "--exclude-module=torch.utils.tensorboard",
+    
+    # Exclude transformers extras we don't need
+    "--exclude-module=transformers.modeling_tf_utils",
+    "--exclude-module=transformers.modeling_flax_utils",
+    
+    # Exclude dev/test dependencies
+    "--exclude-module=setuptools",
+    "--exclude-module=wheel",
+    "--exclude-module=pip",
+    
+    # Exclude data science stack
+    "--exclude-module=scipy.spatial.distance",
+    "--exclude-module=scipy.stats",
+    "--exclude-module=scipy.optimize",
+    "--exclude-module=scipy.integrate",
+    
+    # Exclude image processing we don't use
+    "--exclude-module=cv2.dnn",
+    "--exclude-module=cv2.face",
+    "--exclude-module=skimage",
+    
+    # Exclude audio processing we don't use
+    "--exclude-module=librosa",
+    "--exclude-module=pydub.effects",
+    
+    # Exclude NLP libraries we don't need
+    "--exclude-module=nltk",
+    "--exclude-module=spacy",
+    
+    # Compression settings for better size
+    "--strip",  # Strip debug symbols (Windows)
 ]
 
 # Run PyInstaller

@@ -3,7 +3,7 @@ Audio recording functionality
 """
 import sounddevice as sd
 import numpy as np
-from scipy.io.wavfile import write
+from scipy.io.wavfile import write as write_wav  # Only import what we need
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -75,11 +75,22 @@ class AudioRecorder:
         # Concatenate all recorded frames
         recording = np.concatenate(self.frames, axis=0)
         
-        # Save to temporary file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        temp_dir = Path("recordings")
-        temp_dir.mkdir(exist_ok=True)
+        # Save to recordings directory in AppData
+        # Ensure we're using the full path to AppData
+        app_data = Path.home() / "AppData" / "Local" / "WinWisp"
+        temp_dir = app_data / "recordings"
         
+        # Ensure directory exists
+        try:
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            print(f"Recording directory: {temp_dir}")
+        except Exception as e:
+            print(f"Error creating recordings directory: {e}")
+            # Fall back to current directory
+            temp_dir = Path("recordings")
+            temp_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = temp_dir / f"recording_{timestamp}.wav"
         
         try:
@@ -87,8 +98,9 @@ class AudioRecorder:
             recording_int16 = (recording * 32767).astype(np.int16)
             
             # Save as WAV file
-            write(str(output_file), self.sample_rate, recording_int16)
+            write_wav(str(output_file), self.sample_rate, recording_int16)
             
+            print(f"Recording saved to: {output_file}")
             return str(output_file)
         except Exception as e:
             print(f"Error saving recording: {e}")

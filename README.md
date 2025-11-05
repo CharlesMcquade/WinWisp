@@ -27,6 +27,7 @@ For now, follow the developer installation instructions below.
    - Python 3.8 or higher
    - FFmpeg (required by Whisper)
    - Windows 10/11
+   - **Optional**: NVIDIA GPU with CUDA support for faster transcription
 
 2. **Clone the repository**:
    ```bash
@@ -79,6 +80,17 @@ Available models (in order of size and accuracy):
 ### Hotkey
 Default: `Ctrl+Shift+Space`
 Can be customized in Settings window.
+
+### GPU vs CPU
+WinWisp automatically detects and uses your GPU if available:
+- **GPU (NVIDIA CUDA)**: Much faster transcription (2-10x speed)
+- **CPU Only**: Works perfectly, just slower transcription times
+
+No configuration needed - the app automatically uses the best available option.
+
+**Transcription Speed Examples** (approximate):
+- 10 seconds of audio on GPU: ~1-2 seconds
+- 10 seconds of audio on CPU: ~5-15 seconds (depends on CPU)
 
 ## Troubleshooting
 
