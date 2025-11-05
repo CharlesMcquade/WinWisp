@@ -77,6 +77,26 @@ Can be customized in Settings window.
 - Check for hotkey conflicts with other applications
 - Try running as Administrator
 
+## Attribution
+
+This project uses [OpenAI Whisper](https://github.com/openai/whisper), a general-purpose speech recognition model by OpenAI.
+
+**Whisper Citation:**
+```
+@misc{radford2022whisper,
+  title={Robust Speech Recognition via Large-Scale Weak Supervision},
+  author={Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and McLeavey, Christine and Sutskever, Ilya},
+  year={2022},
+  eprint={2212.04356},
+  archivePrefix={arXiv},
+  primaryClass={eess.AS}
+}
+```
+
+Whisper is licensed under the MIT License - Copyright (c) 2022 OpenAI.
+
 ## License
 
-MIT License
+WindowsWhisper is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is a third-party application and is not affiliated with, officially maintained, or endorsed by OpenAI.

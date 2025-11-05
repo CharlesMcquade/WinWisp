@@ -1,6 +1,16 @@
 """
 WindowsWhisper - Speech to Text using OpenAI Whisper
 Main application entry point
+
+This application uses OpenAI's Whisper model for automatic speech recognition.
+Whisper: https://github.com/openai/whisper
+Paper: "Robust Speech Recognition via Large-Scale Weak Supervision"
+       https://arxiv.org/abs/2212.04356
+
+Copyright (c) 2025 WindowsWhisper
+Licensed under the MIT License
+
+This is a third-party application and is not affiliated with OpenAI.
 """
 import sys
 import os
